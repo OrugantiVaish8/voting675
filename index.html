@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .candidate {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: inline-block;
+        }
+        button {
+            margin-top: 5px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vote for Your Favorite Candidate</h1>
+    <div id="candidates"></div>
+    
+    <script>
+        async function fetchCandidates() {
+            const response = await fetch('http://localhost:3000/results');
+            const candidates = await response.json();
+            const container = document.getElementById('candidates');
+            container.innerHTML = '';
+            candidates.forEach(candidate => {
+                const div = document.createElement('div');
+                div.className = 'candidate';
+                div.innerHTML = `<h3>${candidate.name}</h3>
+                                 <p>Votes: <span id="votes-${candidate.id}">${candidate.votes}</span></p>
+                                 <button onclick="vote('${candidate.name}', ${candidate.id})">Vote</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        async function vote(candidateName, candidateId) {
+            await fetch('http://localhost:3000/vote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ candidate: candidateName })
+            });
+            fetchCandidates();
+        }
+
+        fetchCandidates();
+    </script>
+</body>
+</html>
